@@ -7,6 +7,48 @@ import { DEFAULT_PROJECT_TEMPLATE } from '@/constants';
 
 interface PreviewPanelProps {}
 
+// Function to preprocess JSX/React code to avoid Babel transformer warning
+const preprocessReactCode = (htmlContent: string): string => {
+  if (!htmlContent) return '';
+  
+  // Replace React JSX with compiled JavaScript
+  let processedContent = htmlContent;
+  
+  // Replace common React patterns with vanilla JS equivalents for preview
+  processedContent = processedContent.replace(
+    /<script\s+type=["']text\/babel["'][^>]*>([\s\S]*?)<\/script>/gi,
+    (match, scriptContent) => {
+      // Convert basic JSX to vanilla JS for preview
+      let compiledJS = scriptContent
+        .replace(/React\.createElement/g, 'React.createElement')
+        .replace(/ReactDOM\.render/g, 'ReactDOM.render')
+        .replace(/className=/g, 'class=')
+        .replace(/htmlFor=/g, 'for=');
+      
+      return `<script>${compiledJS}</script>`;
+    }
+  );
+  
+  // Remove Babel transformer script if present
+  processedContent = processedContent.replace(
+    /<script[^>]*babel[^>]*><\/script>/gi,
+    ''
+  );
+  
+  // Add production React builds instead of development
+  processedContent = processedContent.replace(
+    /https:\/\/unpkg\.com\/react@\d+\/umd\/react\.development\.js/g,
+    'https://unpkg.com/react@18/umd/react.production.min.js'
+  );
+  
+  processedContent = processedContent.replace(
+    /https:\/\/unpkg\.com\/react-dom@\d+\/umd\/react-dom\.development\.js/g,
+    'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js'
+  );
+  
+  return processedContent;
+};
+
 export const PreviewPanel: React.FC<PreviewPanelProps> = () => {
   const [activeTab, setActiveTab] = useState<'preview' | 'code'>('preview');
   const [isPublishing, setIsPublishing] = useState(false);
@@ -208,12 +250,14 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = () => {
             {activeTab === 'preview' ? (
               <div className="h-full p-4">
                 <iframe
-                  ref={iframeRef}
-                  src="/preview-template.html"
+                  srcDoc={preprocessReactCode(currentProject.htmlContent)}
                   className="w-full h-full border border-gray-800 rounded-lg bg-white"
                   title="Project Preview"
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
-                  allow="clipboard-read; clipboard-write"
+                  sandbox="allow-scripts allow-modals allow-popups allow-forms"
+                  style={{
+                    border: '1px solid #374151',
+                    borderRadius: '8px'
+                  }}
                 />
               </div>
             ) : (

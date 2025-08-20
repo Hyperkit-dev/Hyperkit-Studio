@@ -157,21 +157,108 @@ REQUIRED STRUCTURE:
                 return React.createElement('div', { className: 'hyperkit-provider' }, children);
             },
             ConnectWallet: function(props) {
+                const [connected, setConnected] = React.useState(false);
+                const [address, setAddress] = React.useState('');
+                const [isConnecting, setIsConnecting] = React.useState(false);
+                
+                const connectWallet = async () => {
+                    if (connected) {
+                        // Disconnect
+                        setConnected(false);
+                        setAddress('');
+                        return;
+                    }
+                    
+                    setIsConnecting(true);
+                    
+                    try {
+                        // Check if MetaMask is installed
+                        if (typeof window.ethereum !== 'undefined') {
+                            // Request account access
+                            const accounts = await window.ethereum.request({
+                                method: 'eth_requestAccounts'
+                            });
+                            
+                            if (accounts.length > 0) {
+                                const account = accounts[0];
+                                setAddress(account);
+                                setConnected(true);
+                                
+                                // Try to switch to Metis Andromeda network
+                                try {
+                                    await window.ethereum.request({
+                                        method: 'wallet_switchEthereumChain',
+                                        params: [{ chainId: '0x440' }], // Metis Andromeda chain ID
+                                    });
+                                } catch (switchError) {
+                                    // If network doesn't exist, add it
+                                    if (switchError.code === 4902) {
+                                        await window.ethereum.request({
+                                            method: 'wallet_addEthereumChain',
+                                            params: [{
+                                                chainId: '0x440',
+                                                chainName: 'Metis Andromeda',
+                                                nativeCurrency: {
+                                                    name: 'METIS',
+                                                    symbol: 'METIS',
+                                                    decimals: 18
+                                                },
+                                                rpcUrls: ['https://andromeda.metis.io/?owner=1088'],
+                                                blockExplorerUrls: ['https://andromeda-explorer.metis.io/']
+                                            }]
+                                        });
+                                    }
+                                }
+                            }
+                        } else {
+                            alert('MetaMask is not installed. Please install MetaMask to connect your wallet.');
+                        }
+                    } catch (error) {
+                        console.error('Wallet connection error:', error);
+                        alert('Failed to connect wallet: ' + error.message);
+                    } finally {
+                        setIsConnecting(false);
+                    }
+                };
+                
+                const formatAddress = (addr) => {
+                    if (!addr) return '';
+                    return addr.slice(0, 6) + '...' + addr.slice(-4);
+                };
+                
                 return React.createElement('button', {
                     style: {
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        background: connected ? 
+                            'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 
+                            isConnecting ?
+                            'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' :
+                            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                         color: 'white',
                         border: 'none',
                         padding: '12px 24px',
                         borderRadius: '25px',
-                        cursor: 'pointer',
+                        cursor: isConnecting ? 'not-allowed' : 'pointer',
                         fontWeight: 'bold',
                         fontSize: '14px',
                         boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
-                        transition: 'all 0.3s ease'
+                        transition: 'all 0.3s ease',
+                        transform: 'scale(1)',
+                        minWidth: '160px',
+                        opacity: isConnecting ? 0.7 : 1
                     },
-                    onClick: () => alert('🔗 Connect Wallet clicked! (HyperionKit placeholder)')
-                }, '🔗 Connect Wallet');
+                    onClick: connectWallet,
+                    disabled: isConnecting,
+                    onMouseOver: (e) => {
+                        if (!isConnecting) {
+                            e.target.style.transform = 'scale(1.05)';
+                        }
+                    },
+                    onMouseOut: (e) => {
+                        e.target.style.transform = 'scale(1)';
+                    }
+                }, isConnecting ? '🔄 Connecting...' : 
+                   connected ? '✅ ' + formatAddress(address) : 
+                   '🔗 Connect Wallet');
             },
             Swap: function(props) {
                 return React.createElement('div', {
@@ -436,34 +523,107 @@ function generateFallbackHTML(prompt: string): string {
             },
             ConnectWallet: function(props) {
                 const [connected, setConnected] = React.useState(false);
+                const [address, setAddress] = React.useState('');
+                const [isConnecting, setIsConnecting] = React.useState(false);
+                
+                const connectWallet = async () => {
+                    if (connected) {
+                        // Disconnect
+                        setConnected(false);
+                        setAddress('');
+                        return;
+                    }
+                    
+                    setIsConnecting(true);
+                    
+                    try {
+                        // Check if MetaMask is installed
+                        if (typeof window.ethereum !== 'undefined') {
+                            // Request account access
+                            const accounts = await window.ethereum.request({
+                                method: 'eth_requestAccounts'
+                            });
+                            
+                            if (accounts.length > 0) {
+                                const account = accounts[0];
+                                setAddress(account);
+                                setConnected(true);
+                                
+                                // Try to switch to Metis Andromeda network
+                                try {
+                                    await window.ethereum.request({
+                                        method: 'wallet_switchEthereumChain',
+                                        params: [{ chainId: '0x440' }], // Metis Andromeda chain ID
+                                    });
+                                } catch (switchError) {
+                                    // If network doesn't exist, add it
+                                    if (switchError.code === 4902) {
+                                        await window.ethereum.request({
+                                            method: 'wallet_addEthereumChain',
+                                            params: [{
+                                                chainId: '0x440',
+                                                chainName: 'Metis Andromeda',
+                                                nativeCurrency: {
+                                                    name: 'METIS',
+                                                    symbol: 'METIS',
+                                                    decimals: 18
+                                                },
+                                                rpcUrls: ['https://andromeda.metis.io/?owner=1088'],
+                                                blockExplorerUrls: ['https://andromeda-explorer.metis.io/']
+                                            }]
+                                        });
+                                    }
+                                }
+                            }
+                        } else {
+                            alert('MetaMask is not installed. Please install MetaMask to connect your wallet.');
+                        }
+                    } catch (error) {
+                        console.error('Wallet connection error:', error);
+                        alert('Failed to connect wallet: ' + error.message);
+                    } finally {
+                        setIsConnecting(false);
+                    }
+                };
+                
+                const formatAddress = (addr) => {
+                    if (!addr) return '';
+                    return addr.slice(0, 6) + '...' + addr.slice(-4);
+                };
                 
                 return React.createElement('button', {
                     style: {
                         background: connected ? 
                             'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 
+                            isConnecting ?
+                            'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' :
                             'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                         color: 'white',
                         border: 'none',
                         padding: '12px 24px',
                         borderRadius: '25px',
-                        cursor: 'pointer',
+                        cursor: isConnecting ? 'not-allowed' : 'pointer',
                         fontWeight: 'bold',
                         fontSize: '14px',
                         boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
                         transition: 'all 0.3s ease',
                         transform: 'scale(1)',
+                        minWidth: '160px',
+                        opacity: isConnecting ? 0.7 : 1
                     },
-                    onClick: () => {
-                        setConnected(!connected);
-                        alert(connected ? '❌ Wallet Disconnected!' : '✅ Wallet Connected! (HyperionKit Mock)');
-                    },
+                    onClick: connectWallet,
+                    disabled: isConnecting,
                     onMouseOver: (e) => {
-                        e.target.style.transform = 'scale(1.05)';
+                        if (!isConnecting) {
+                            e.target.style.transform = 'scale(1.05)';
+                        }
                     },
                     onMouseOut: (e) => {
                         e.target.style.transform = 'scale(1)';
                     }
-                }, connected ? '✅ Connected' : '🔗 Connect Wallet');
+                }, isConnecting ? '🔄 Connecting...' : 
+                   connected ? '✅ ' + formatAddress(address) : 
+                   '🔗 Connect Wallet');
             },
             Swap: function(props) {
                 const [fromToken, setFromToken] = React.useState('ETH');
