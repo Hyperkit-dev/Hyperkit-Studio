@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '@/store/store';
 import { FileService } from '@/lib/file-service';
 import { DEFAULT_PROJECT_TEMPLATE } from '@/constants';
@@ -11,8 +11,44 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = () => {
   const [activeTab, setActiveTab] = useState<'preview' | 'code'>('preview');
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishSuccess, setPublishSuccess] = useState(false);
+  const [previewReady, setPreviewReady] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   
   const { currentProject, setError } = useAppStore();
+
+  // Handle messages from iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) {
+        return;
+      }
+      
+      if (event.data.type === 'PREVIEW_READY') {
+        setPreviewReady(true);
+        updateIframeContent();
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [currentProject]);
+
+  // Update iframe content safely
+  const updateIframeContent = () => {
+    if (!currentProject || !iframeRef.current || !previewReady) return;
+    
+    iframeRef.current.contentWindow?.postMessage({
+      type: 'UPDATE_CONTENT',
+      content: currentProject.htmlContent
+    }, window.location.origin);
+  };
+
+  // Update content when project changes
+  useEffect(() => {
+    if (previewReady) {
+      updateIframeContent();
+    }
+  }, [currentProject?.htmlContent, previewReady]);
 
   const handleDownload = () => {
     if (!currentProject) return;
@@ -124,10 +160,11 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = () => {
             {activeTab === 'preview' ? (
               <div className="h-full p-4">
                 <iframe
-                  srcDoc={currentProject.htmlContent}
+                  ref={iframeRef}
+                  src="/preview-template.html"
                   className="w-full h-full border border-gray-800 rounded-lg bg-white"
                   title="Project Preview"
-                  sandbox="allow-scripts allow-same-origin"
+                  sandbox="allow-scripts allow-forms allow-popups allow-modals"
                 />
               </div>
             ) : (

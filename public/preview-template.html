@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HyperionKit Preview</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+        }
+        
+        #preview-container {
+            width: 100vw;
+            height: 100vh;
+            background: white;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="preview-container">
+        <div class="loading">Loading preview...</div>
+    </div>
+
+    <script>
+        // Listen for messages from parent
+        window.addEventListener('message', function(event) {
+            // Verify origin for security (adjust as needed)
+            if (event.origin !== window.location.origin) {
+                return;
+            }
+            
+            if (event.data.type === 'UPDATE_CONTENT') {
+                const container = document.getElementById('preview-container');
+                container.innerHTML = event.data.content;
+                
+                // Execute any scripts in the new content
+                const scripts = container.getElementsByTagName('script');
+                for (let i = 0; i < scripts.length; i++) {
+                    const script = scripts[i];
+                    const newScript = document.createElement('script');
+                    
+                    if (script.src) {
+                        newScript.src = script.src;
+                    } else {
+                        newScript.textContent = script.textContent;
+                    }
+                    
+                    script.parentNode.replaceChild(newScript, script);
+                }
+            }
+        });
+        
+        // Notify parent that preview is ready
+        window.parent.postMessage({
+            type: 'PREVIEW_READY'
+        }, window.location.origin);
+    </script>
+</body>
+</html>
