@@ -19,7 +19,17 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = () => {
   // Handle messages from iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) {
+      // Enhanced security: verify origin and message structure
+      const allowedOrigins = [
+        window.location.origin,
+        'http://localhost:3000',
+        'https://hyperionkit.xyz',
+        'https://ai.hyperionkit.xyz',
+        'https://ai-lilac-alpha.vercel.app'
+      ];
+      
+      if (!allowedOrigins.includes(event.origin)) {
+        console.warn('Blocked message from unauthorized origin:', event.origin);
         return;
       }
       
@@ -27,19 +37,57 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = () => {
         setPreviewReady(true);
         updateIframeContent();
       }
+      
+      // Handle security alerts from iframe
+      if (event.data.type === 'SECURITY_ALERT') {
+        console.warn('Security alert from preview:', event.data.message);
+        setError('Security restriction detected in preview');
+      }
     };
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [currentProject]);
 
+  // Enhanced content sanitization
+  const sanitizeContent = (html: string) => {
+    if (!html) return '';
+    
+    let sanitized = html;
+    
+    // Remove dangerous script patterns but preserve Web3 functionality
+    const dangerousPatterns = [
+      /document\.domain\s*=/gi,
+      /eval\s*\(/gi,
+      /Function\s*\(/gi,
+      /setTimeout\s*\(\s*["'].*?["']/gi, // String-based setTimeout
+      /setInterval\s*\(\s*["'].*?["']/gi, // String-based setInterval
+      /<iframe[^>]*>/gi, // Nested iframes
+      /<object[^>]*>/gi, // Object embeds
+      /<embed[^>]*>/gi, // Embed tags
+    ];
+    
+    dangerousPatterns.forEach(pattern => {
+      if (pattern.test(sanitized)) {
+        console.warn('Removed potentially dangerous content pattern');
+        sanitized = sanitized.replace(pattern, '/* REMOVED_FOR_SECURITY */');
+      }
+    });
+    
+    return sanitized;
+  };
+
   // Update iframe content safely
   const updateIframeContent = () => {
     if (!currentProject || !iframeRef.current || !previewReady) return;
     
+    const sanitizedContent = sanitizeContent(currentProject.htmlContent);
+    
     iframeRef.current.contentWindow?.postMessage({
       type: 'UPDATE_CONTENT',
-      content: currentProject.htmlContent
+      content: sanitizedContent,
+      timestamp: Date.now(),
+      securityLevel: 'enhanced'
     }, window.location.origin);
   };
 
@@ -164,7 +212,8 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = () => {
                   src="/preview-template.html"
                   className="w-full h-full border border-gray-800 rounded-lg bg-white"
                   title="Project Preview"
-                  sandbox="allow-scripts allow-forms allow-popups allow-modals"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+                  allow="clipboard-read; clipboard-write"
                 />
               </div>
             ) : (
