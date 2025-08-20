@@ -1,36 +1,134 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HyperionKit AI - Web3 Project Generator
 
-## Getting Started
+An AI-powered tool that generates complete Web3 applications using natural language prompts. Built with Next.js, TypeScript, and integrated with HyperionKit blockchain components.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **AI-Powered Generation**: Describe your Web3 project and get a complete application
+- **Blockchain Integration**: Automatic integration of HyperionKit components (ConnectWallet, Swap, Bridge, Staking, Faucet)
+- **Live Preview**: See your generated project in real-time with iframe preview
+- **File Management**: Download complete project files or publish to HyperionKit platform
+- **Multiple AI Models**: Support for various AI models (GPT-4, GPT-3.5, etc.)
+- **Smart Prompting**: Restricted to project-related prompts only
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
+- **State Management**: Zustand with persistence
+- **AI Integration**: Alith AI wrapper
+- **Icons**: Lucide React
+- **Blockchain**: HyperionKit components
+
+## 📦 Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd hyperionkit-ai
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Edit `.env.local` and add your API keys:
+   ```env
+   OPENAI_API_KEY=your_openai_api_key_here
+   ANTHROPIC_API_KEY=your_anthropic_api_key_here
+   GITHUB_TOKEN=your_github_token_here
+   ```
+
+4. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open your browser**
+   Navigate to `http://localhost:3000`
+
+## 🎯 Usage
+
+### Basic Usage
+
+1. **Select AI Model**: Choose your preferred AI model from the dropdown
+2. **Enter Prompt**: Describe your Web3 project (max 500 characters)
+3. **Generate**: Click send and watch your project come to life
+4. **Preview**: View the generated application in the preview panel
+5. **Download/Publish**: Download the files or publish to HyperionKit platform
+
+### Example Prompts
+
+```
+✅ Good prompts:
+- "Create a DeFi dashboard with staking features"
+- "Build an NFT marketplace with wallet connection"
+- "Make a crypto portfolio tracker"
+- "Generate a token swapping interface"
+
+❌ Avoid:
+- General questions about blockchain
+- Non-project related queries
+- Personal information requests
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🏗️ Project Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+src/
+├── api/
+│   └── aiService.ts          # AI integration service
+├── components/
+│   ├── ChatPanel.tsx         # Left panel - chat interface
+│   ├── PreviewPanel.tsx      # Right panel - project preview
+│   ├── ModelSelector.tsx     # AI model selection
+│   └── ErrorBoundary.tsx     # Error handling component
+├── constants/
+│   └── index.ts             # App constants and configurations
+├── lib/
+│   ├── fileService.ts       # File download/upload utilities
+│   └── env.ts              # Environment configuration
+├── store/
+│   └── useAppStore.ts       # Zustand state management
+├── types/
+│   └── index.ts            # TypeScript type definitions
+└── app/
+    ├── layout.tsx
+    ├── page.tsx            # Main application page
+    └── globals.css
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🔧 Configuration
 
-## Learn More
+### AI Models
 
-To learn more about Next.js, take a look at the following resources:
+The application supports multiple AI models configured in `src/constants/index.ts`:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```typescript
+export const AI_MODELS = [
+  {
+    id: 'gpt-4-turbo',
+    name: 'GPT-4 Turbo',
+    description: 'Most capable model for complex code generation',
+    available: true
+  },
+  // Add more models...
+];
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### HyperionKit Components
 
-## Deploy on Vercel
+Generated projects automatically include:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **ConnectWallet**: Always included for wallet connectivity
+- **Swap**: Token swapping functionality
+- **Bridge**: Cross-chain bridging
+- **Staking**: Token staking features
+- **Faucet**: Testnet token claiming
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built with ❤️ by the HyperionKit team
