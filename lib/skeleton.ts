@@ -279,6 +279,14 @@ export function processAIGeneratedCode(rawCode: string, componentName?: string):
   // "const Name = () return" -> "const Name = () => { return"
   cleanCode = cleanCode.replace(/=\s*\(\s*\)\s+return/g, '= () => {\n  return');
   
+  // Fix: missing = in useState declarations
+  // "const [value, setValue] useState" -> "const [value, setValue] = useState"
+  cleanCode = cleanCode.replace(/const\s+\[([^\]]+)\]\s+useState/g, 'const [$1] = useState');
+  cleanCode = cleanCode.replace(/const\s+\[([^\]]+)\]\s+useEffect/g, 'const [$1] = useEffect');
+  cleanCode = cleanCode.replace(/const\s+\[([^\]]+)\]\s+useRef/g, 'const [$1] = useRef');
+  cleanCode = cleanCode.replace(/const\s+\[([^\]]+)\]\s+useMemo/g, 'const [$1] = useMemo');
+  cleanCode = cleanCode.replace(/const\s+\[([^\]]+)\]\s+useCallback/g, 'const [$1] = useCallback');
+  
   // Fix: missing spaces after keywords
   cleanCode = cleanCode.replace(/\bif\(/g, 'if (');
   cleanCode = cleanCode.replace(/\bfor\(/g, 'for (');

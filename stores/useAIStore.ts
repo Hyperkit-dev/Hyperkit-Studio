@@ -79,8 +79,8 @@ export const AI_MODELS: Record<AIModel, AIModelInfo> = {
   },
   'grok-3': {
     id: 'grok-3',
-    name: 'Grok 3',
-    description: 'Grok - Creative responses',
+    name: 'HyperKit v4',
+    description: 'Grok 3 - Most creative and advanced',
     githubModel: 'grok-3'
   }
 };
@@ -164,7 +164,7 @@ const initialState: AIState = {
   error: null,
   retryCount: 0,
   apiKey: null,
-  selectedModel: 'gpt-4o', // Default model
+  selectedModel: 'grok-3', // Default model
 };
 
 // ============================================================================

@@ -20,7 +20,7 @@ export class GitHubAIClient {
   private baseURL: string;
   private model: string;
 
-  constructor(apiKey: string, model: string = 'gpt-4o') {
+  constructor(apiKey: string, model: string = 'grok-3') {
     this.apiKey = apiKey;
     // GitHub Models API endpoint
     this.baseURL = 'https://models.inference.ai.azure.com';
@@ -43,7 +43,7 @@ export class GitHubAIClient {
     callbacks: StreamCallbacks,
     options: GenerateOptions = {}
   ): Promise<void> {
-    const { temperature = 0.7, maxTokens = 2000 } = options;
+    const { temperature = 0.7, maxTokens = 16000 } = options;
 
     try {
       // Check if API key is available
@@ -147,7 +147,7 @@ export class GitHubAIClient {
     systemPrompt: string,
     options: GenerateOptions = {}
   ): Promise<string> {
-    const { temperature = 0.7, maxTokens = 2000 } = options;
+    const { temperature = 0.7, maxTokens = 16000 } = options;
 
     try {
       // Check if API key is available
@@ -204,70 +204,25 @@ export class GitHubAIClient {
 // ============================================================================
 
 export const SYSTEM_PROMPTS = {
-  codeGeneration: `You are an expert React developer. Generate ONLY valid, syntactically correct React JSX code.
+  codeGeneration: `CODE ONLY. NO EXPLANATIONS. NO MARKDOWN.
 
-CRITICAL JAVASCRIPT SYNTAX (MUST FOLLOW):
-1. Function declarations: "function MyComponent() {" NOT "function MyComponent() return"
-2. Opening brace required: "function Name() {" NOT "function Name() return"
-3. Arrow functions: "const MyComponent = () => {" NOT "const MyComponent = () return"
-4. Space after "function": "function Name()" NOT "functionName()"
-5. All statements end with semicolons
+🚨 FIRST WORD MUST BE: import
 
-CRITICAL JSX SYNTAX:
-1. Style objects MUST be closed: style={{ color: 'red' }} NOT style={{ color: 'red'
-2. All braces must match: every { needs a }
-3. JSX tags properly closed: <div>...</div> or <img />
-4. String values ALWAYS: color: 'blue' NOT color: blue
-5. NO vanilla HTML tags: <html>, <head>, <body>
+Rules:
+1. Start with: import React, { useState } from 'react';
+2. Function format: function Name() { (NOT: function Name() return)
+3. Hooks format: const [x, setX] = useState(0); (NOT: const [x, setX] useState)
+4. Styles: style={{ prop: 'value' }} (strings with units, properly closed)
+5. End with EXACTLY:
+   const root = document.getElementById('root');
+   if (root) {
+     const rootInstance = window.ReactDOM.createRoot(root);
+     rootInstance.render(window.React.createElement(ComponentName));
+   }
 
-REQUIRED STRUCTURE (FOLLOW EXACTLY):
-\`\`\`jsx
-import React, { useState } from 'react';
+CRITICAL: Use window.React and window.ReactDOM (they are globals).
 
-function ComponentName() {
-  const [count, setCount] = useState(0);
-  
-  return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <h1 style={{ color: '#333', fontSize: '32px' }}>
-        Title
-      </h1>
-    </div>
-  );
-}
-
-const root = document.getElementById('root');
-if (root) {
-  const rootInstance = window.ReactDOM.createRoot(root);
-  rootInstance.render(window.React.createElement(ComponentName));
-}
-\`\`\`
-
-CORRECT EXAMPLES:
-✅ function Game() {
-✅ const App = () => {
-✅ return (
-✅ <div style={{ padding: '20px' }}>
-
-WRONG EXAMPLES (DO NOT DO THIS):
-❌ function Game() return
-❌ functionGame() {
-❌ const App = () return
-❌ <div style={{ padding: '20px'>
-
-VALIDATION CHECKLIST (Check each line):
-□ Every function has opening brace: function Name() {
-□ Every style object is closed: style={{ ... }}
-□ Every tag is closed: <div>...</div>
-□ All values are strings: '20px' not 20px
-□ No HTML tags: only React components
-
-RULES:
-- ALWAYS validate syntax before responding
-- Use inline styles ONLY
-- All CSS values as strings with units
-- Make it beautiful and responsive
-- NO explanations, ONLY valid code`,
+NO text before "import". NO markdown blocks. NO explanations. Just code.`,
 
   projectPlanning: `You are a software architect helping plan web projects. Analyze the requirements and provide:
 1. Project structure

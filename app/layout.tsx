@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HyperkitAI - AI-Powered Project Generator",
+  title: "HyperkitAI",
   description: "Build applications with AI assistance - like v0, lovable, and base44",
 };
 

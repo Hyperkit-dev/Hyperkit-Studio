@@ -77,18 +77,22 @@ export function PreviewFrame({ code, bundleError }: PreviewFrameProps) {
             window.global = window;
         </script>
         
-        <!-- Load React 18 UMD -->
-        <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-        <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+        <!-- Load React 18 UMD with specific version -->
+        <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
         
         <script>
-            // Verify React loaded
+            // Verify React loaded properly
             if (!window.React || !window.ReactDOM) {
               console.error('❌ React failed to load!');
-              document.getElementById('root').innerHTML = '<div style="padding:20px;color:red;">Error: React libraries failed to load</div>';
+              console.error('React:', window.React);
+              console.error('ReactDOM:', window.ReactDOM);
+              document.getElementById('root').innerHTML = '<div style="padding:20px;color:red;"><h3>Error: React libraries failed to load</h3><p>Please refresh the page</p></div>';
             } else {
               console.log('✅ React loaded:', window.React.version);
               console.log('✅ ReactDOM loaded');
+              console.log('✅ React.createElement available:', typeof window.React.createElement);
+              console.log('✅ ReactDOM.createRoot available:', typeof window.ReactDOM.createRoot);
             }
             
             // Capture console methods

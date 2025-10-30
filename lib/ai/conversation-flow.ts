@@ -369,8 +369,8 @@ export class ConversationFlow {
           }
         },
         {
-          temperature: currentRequirements.isDynamic ? 0.8 : 0.7,
-          maxTokens: currentRequirements.isDynamic ? 3000 : 2000,
+          temperature: 0.7,
+          maxTokens: 16000,
         }
       );
 
@@ -403,22 +403,12 @@ export class ConversationFlow {
   private buildGenerationPrompt(requirements: ProjectRequirements): string {
     const { type, title, description, isDynamic } = requirements;
 
-    return `
-Create a ${isDynamic ? 'dynamic React' : 'static'} ${type} project.
+    return `Build: ${title}
+${description}
 
-Project Name: ${title}
-Description: ${description}
+Type: ${isDynamic ? 'React with hooks' : 'static'} ${type}
 
-Requirements:
-- ${isDynamic ? 'Use React functional components with hooks' : 'Use vanilla JavaScript'}
-- Modern, clean design with good UX
-- Responsive layout
-- ${type === 'blockchain' ? 'Include wallet connection UI (placeholder)' : ''}
-- Include inline styles or CSS
-- Make it production-ready
-
-Return ONLY the code, no explanations.
-    `.trim();
+Start with "import React".`.trim();
   }
 
   /**
@@ -449,28 +439,26 @@ Return ONLY the code, no explanations.
           onError: (error: Error) => {
             setStreaming(false);
             reject(error);
-          },
+          }
         },
         {
           temperature: 0.7,
-          maxTokens: 2000,
+          maxTokens: 16000,
         }
       );
     });
   }
 }
 
-// Create singleton instance
-let flowInstance: ConversationFlow | null = null;
+// Singleton instance
+let conversationFlowInstance: ConversationFlow | null = null;
 
+/**
+ * Get or create the conversation flow singleton instance
+ */
 export function getConversationFlow(): ConversationFlow {
-  if (!flowInstance) {
-    flowInstance = new ConversationFlow();
+  if (!conversationFlowInstance) {
+    conversationFlowInstance = new ConversationFlow();
   }
-  return flowInstance;
-}
-
-// Helper to reset the flow instance (useful for testing)
-export function resetConversationFlow(): void {
-  flowInstance = null;
+  return conversationFlowInstance;
 }
