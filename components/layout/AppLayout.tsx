@@ -25,14 +25,14 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
 
   // Calculate header left width based on sidebar state
-  const headerLeftWidth = isMobile ? 'auto' : (isSidebarMinimized ? '0px' : `${sidebarWidth}px`);
+  const headerLeftWidth = isMobile ? '0px' : (isSidebarMinimized ? '0px' : `${sidebarWidth}px`);
 
   return (
     <div className="app-layout">
       {/* Header */}
       <header className="app-header">
-        {/* Left section - above sidebar */}
-        {!isSidebarMinimized && (
+        {/* Left section - above sidebar (desktop only) */}
+        {!isMobile && !isSidebarMinimized && (
           <div 
             className="header-section header-section-left"
             style={{ width: headerLeftWidth }}
@@ -43,10 +43,20 @@ export function AppLayout({ children }: AppLayoutProps) {
           </div>
         )}
         
+        {/* Mobile logo */}
+        {isMobile && (
+          <div className="header-section header-section-left mobile-header-left">
+            <div className="logo">
+              <span className="logo-text">HyperkitAI</span>
+            </div>
+          </div>
+        )}
+        
         {/* Right section - above main content */}
         <div className="header-section header-section-right">
-          {/* Sidebar toggle button - Desktop only */}
-          <div className="flex justify-start gap-2">
+          {/* Controls container */}
+          <div className={`flex justify-start gap-2 items-center ${isMobile ? 'flex-nowrap overflow-x-auto' : 'flex-wrap'}`}>
+            {/* Sidebar toggle button - Desktop only */}
             {!isMobile && (
               <button
                 onClick={toggleSidebarMinimize}
@@ -61,31 +71,46 @@ export function AppLayout({ children }: AppLayoutProps) {
               </button>
             )}
             
-            {/* View Mode Toggle */}
-            {!isMobile && (
-              <div className="view-mode-toggle">
-                <button
-                  onClick={() => toggleViewMode()}
-                  className={`view-mode-tab ${viewMode === 'dashboard' ? 'active' : ''}`}
-                >
-                  Dashboard
-                </button>
-                <button
-                  onClick={() => toggleViewMode()}
-                  className={`view-mode-tab ${viewMode === 'preview' ? 'active' : ''}`}
-                >
-                  Preview
-                </button>
-              </div>
-            )}
+            {/* View Mode Toggle - Now shown on both mobile and desktop */}
+            <div className={`view-mode-toggle ${isMobile ? 'view-mode-toggle-mobile' : ''}`}>
+              <button
+                onClick={() => toggleViewMode()}
+                className={`view-mode-tab ${viewMode === 'dashboard' ? 'active' : ''}`}
+              >
+                {isMobile ? (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                  </svg>
+                ) : (
+                  'Dashboard'
+                )}
+              </button>
+              <button
+                onClick={() => toggleViewMode()}
+                className={`view-mode-tab ${viewMode === 'preview' ? 'active' : ''}`}
+              >
+                {isMobile ? (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                ) : (
+                  'Preview'
+                )}
+              </button>
+            </div>
 
-            {/* Preview Mode Toggle - only show when in preview mode */}
-            {!isMobile && viewMode === 'preview' && (
+            {/* Preview Mode Toggle - shown when in preview mode on both mobile and desktop */}
+            {viewMode === 'preview' && (
               <div className="preview-mode-toggle">
                 <button
                   onClick={() => setPreviewMode('desktop')}
                   className={`preview-mode-tab ${previewMode === 'desktop' ? 'active' : ''}`}
                   aria-label="Desktop mode"
+                  title="Desktop mode"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
@@ -97,6 +122,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                   onClick={() => setPreviewMode('mobile')}
                   className={`preview-mode-tab ${previewMode === 'mobile' ? 'active' : ''}`}
                   aria-label="Mobile mode"
+                  title="Mobile mode"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
