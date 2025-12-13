@@ -13,10 +13,10 @@
   "dependencies": {
     "clsx": "^2.1.1",
     "esbuild-wasm": "^0.25.11",
-    "eslint-config-next": "^16.0.7",
+    "eslint-config-next": "^16.0.10",
     "hyperionkit": "^1.1.4",
     "localforage": "^1.10.0",
-    "next": "^16.0.7",
+    "next": "16.0.10",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "tailwind-merge": "^3.3.1",
