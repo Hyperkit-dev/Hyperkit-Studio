@@ -1,7 +1,12 @@
+"use client";
 import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Bell, Settings, ChevronDown } from 'lucide-react';
 
 export const Navbar = () => {
+
+const pathname = usePathname();
   return (
     <header className="h-16 border-b border-[#1F1F22] bg-[#050814] flex items-center justify-between px-6 z-40 shrink-0">
       
@@ -15,20 +20,36 @@ export const Navbar = () => {
       </div>
 
       {/* Center Nav */}
+
+
       <div className="hidden md:flex items-center bg-[#0B1020] rounded-full p-1 border border-[#1F1F22]">
-        <button className="px-5 py-1.5 rounded-full text-xs font-medium bg-[#1F1F22] text-white shadow-sm border border-[#27272A]">
+        <Link
+          href="/overview"
+          className={`px-5 py-1.5 rounded-full text-xs font-medium transition-colors
+            ${
+              pathname.startsWith("/overview")
+                ? "bg-[#1F1F22] text-white shadow-sm border border-[#27272A]"
+                : "text-[#9CA3AF] hover:text-white"
+            }
+          `}
+        >
           Dashboard
-        </button>
-        <button className="px-5 py-1.5 rounded-full text-xs font-medium text-[#9CA3AF] hover:text-white transition-colors">
-          Designer
-        </button>
-        <button className="px-5 py-1.5 rounded-full text-xs font-medium text-[#9CA3AF] hover:text-white transition-colors">
-          Preview
-        </button>
-        <button className="px-5 py-1.5 rounded-full text-xs font-medium text-[#9CA3AF] hover:text-white transition-colors">
+        </Link>
+
+        <Link
+          href="/code"
+          className={`px-5 py-1.5 rounded-full text-xs font-medium transition-colors
+            ${
+              pathname.startsWith("/code")
+                ? "bg-[#1F1F22] text-white shadow-sm border border-[#27272A]"
+                : "text-[#9CA3AF] hover:text-white"
+            }
+          `}
+        >
           Code
-        </button>
+        </Link>
       </div>
+
 
       {/* Right Actions */}
       <div className="flex items-center justify-end gap-4 w-64">
